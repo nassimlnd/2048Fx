@@ -23,12 +23,6 @@ public class Tile extends Label {
     }
 
     public Tile(Integer value) {
-        final int squareSize = Board.CELL_SIZE - 13;
-        setMinSize(squareSize, squareSize);
-        setMaxSize(squareSize, squareSize);
-        setPrefSize(squareSize, squareSize);
-        setAlignment(Pos.CENTER);
-
         this.value = value;
         this.merged = false;
         setText(value.toString());
@@ -65,10 +59,5 @@ public class Tile extends Label {
 
     public boolean isMergeable(Tile anotherTile) {
         return this.getValue() == anotherTile.getValue();
-    }
-
-    @Override
-    public String toString() {
-        return "Tile{" + "value=" + this.getValue() + ", x=" + this.location.getX() + ", y=" + this.location.getY() + "}";
     }
 }
