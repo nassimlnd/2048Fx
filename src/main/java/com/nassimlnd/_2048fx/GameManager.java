@@ -32,16 +32,24 @@ public class GameManager {
     public void addRandomTile() {
         Tile tile = Tile.newRandomTile();
         Random random = new Random();
-        Location key = availableCells().get(random.nextInt(availableCells().size()));
-        System.out.println(this.grid.containsKey(key));
-        this.grid.replace(key, tile);
+        Location location = availableCells().get(random.nextInt(availableCells().size()));
+        for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
+            String locationStr = location.toString();
+            String entryLocation = entry.getKey().toString();
+            if (locationStr.equals(entryLocation)) {
+                Location key = entry.getKey();
+                this.grid.replace(key, tile);
+            }
+        }
     }
 
     public boolean cellAvailable(Location location) {
-        System.out.println(grid);
         for(Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
-            Location key = entry.getKey();
-            System.out.println(key);
+            if (location.equals(entry.getKey())) {
+                if (entry.getValue() == null) {
+                    return true;
+                } else return false;
+            }
         }
         return false;
     }
@@ -65,6 +73,17 @@ public class GameManager {
 
     public int getSize() {
         return this.size;
+    }
+
+    public Tile getTile(Location location) {
+        for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
+            String locationStr = location.toString();
+            String entryLocation = entry.getKey().toString();
+            if (locationStr.equals(entryLocation)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
 }

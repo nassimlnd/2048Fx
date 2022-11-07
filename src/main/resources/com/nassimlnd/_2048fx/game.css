@@ -12,9 +12,17 @@
     -fx-text-fill: #eee4da;
 }
 .game-score {
-    -fx-font-size: 25px;
-    -fx-text-fill: white;
+    -fx-font-family: "Clear Sans";
+    -fx-font-size: 13px;
+    -fx-text-fill: #eee4da;
+    -fx-font-weight: bold;
 }
+
+.game-score-points {
+    -fx-font-size: 20px;
+    -fx-font-fill: white;
+}
+
 .game-points {
     -fx-font-size: 25px;
     -fx-text-fill: rgba(119, 110, 101, 0.9);
@@ -35,6 +43,7 @@
     -fx-background-radius: 3;
     -fx-border-radius: 3;
 }
+
 .game-grid-cell {
     -fx-fill: #cdc1b4;
     -fx-stroke-width: 14px;
@@ -49,8 +58,10 @@
 }
 
 .game-title {
+    -fx-font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 80px;
     -fx-text-fill: #776e65;
+    -fx-font-family: bold;
 }
 .game-subtitle {
     -fx-font-size: 40px;
@@ -126,6 +137,14 @@
     -fx-border-color: -fx-focus-color;
     -fx-border-width: 0.5px;
 }
+
+.game-tile-0 {
+    -fx-background-color: rgba(238, 228, 218, 0.35);
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-font-size: 55px;
+}
+
 .game-tile-2    { 
     -fx-font-size: 55px;
     -fx-text-fill: #776e65;

@@ -26,7 +26,8 @@ public class Tile extends Label {
         this.value = value;
         this.merged = false;
         setText(value.toString());
-        getStyleClass().addAll("game-label", "game-title-" + value);
+        getStylesheets().add(getClass().getResource("game.css").toExternalForm());
+        getStyleClass().addAll( "game-tile-" + value);
     }
 
     public void merge(Tile anotherTile) {
