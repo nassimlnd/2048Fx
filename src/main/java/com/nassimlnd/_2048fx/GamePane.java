@@ -1,11 +1,14 @@
 package com.nassimlnd._2048fx;
 
-import com.almasb.fxgl.core.collection.grid.Grid;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -20,7 +23,7 @@ public class GamePane {
 
     public GamePane(Stage stage, GameManager gameManager) {
         BorderPane borderPane = new BorderPane();
-        GridPane gridPane = showGrid(gameManager);
+        gameManager.setGridPane(showGrid(gameManager));
         Pane pane = new Pane();
         Label gameTitle = new Label("2048");
         VBox scoreBox = new VBox();
@@ -69,19 +72,28 @@ public class GamePane {
         borderPane.setPrefHeight(800);
         borderPane.setPrefWidth(600);
         borderPane.setTop(pane);
-        borderPane.setCenter(gridPane);
+        borderPane.setCenter(gameManager.getGridPane());
         borderPane.getStyleClass().add("game-root");
-        BorderPane.setAlignment(gridPane, Pos.CENTER);
+        BorderPane.setAlignment(gameManager.getGridPane(), Pos.CENTER);
 
         /* GridPane */
-        gridPane.setMaxSize(400,400);
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setAlignment(Pos.CENTER);
+        gameManager.getGridPane().setHgap(10);
+        gameManager.getGridPane().setVgap(10);
+        gameManager.getGridPane().setAlignment(Pos.CENTER);
         //gridPane.setStyle("-fx-background-color: red;");
-        gridPane.getStyleClass().add("game-backGrid");
+
 
         Scene scene = new Scene(borderPane, 600,800);
+
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                gameManager.move(keyEvent.getCode());
+                borderPane.getChildren().remove(gameManager.getGridPane());
+                borderPane.setCenter(showGrid(gameManager));
+            }
+        });
+
         scene.getStylesheets().add(String.valueOf(GamePane.class.getResource("game.css")));
         stage.setScene(scene);
         stage.setTitle("2048");
@@ -89,14 +101,16 @@ public class GamePane {
         stage.show();
     }
 
-    public GridPane showGrid(GameManager gameManager) {
-        GridPane gridPane = new GridPane();
+    public Grid showGrid(GameManager gameManager) {
+        Grid gridPane = new Grid();
         gridPane.getStylesheets().add(String.valueOf(GamePane.class.getResource("game.css")));
         HashMap<Location, Tile> grid = gameManager.getGrid();
-
-        gridPane.setMinSize(500,500);
-        gridPane.setHgap(5);
-        gridPane.setVgap(5);
+        gridPane.getStyleClass().add("game-backGrid");
+        gridPane.setMaxSize(400,400);
+        gridPane.setAlignment(Pos.CENTER);
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(10,10,10,10));
 
         for (int i = 0; i < gameManager.getSize(); i++) {
             for (int j = 0; j < gameManager.getSize(); j++) {
@@ -120,5 +134,36 @@ public class GamePane {
         }
 
         return gridPane;
+    }
+
+    public void refreshGrid(GridPane gridPane, GameManager gameManager) {
+        ObservableList<Node> childrens = gridPane.getChildren();
+        for (Node node : childrens) {
+            if (node instanceof Tile) {
+                Tile tile = (Tile) node;
+                gridPane.getChildren().remove(tile);
+            }
+        }
+
+        for (int i = 0; i < gameManager.getSize(); i++) {
+            for (int j = 0; j < gameManager.getSize(); j++) {
+                Tile tile = gameManager.getTile(new Location(i, j));
+                if (!(tile == null)) {
+                    tile.setAlignment(Pos.CENTER);
+                    tile.setPrefSize(100,100);
+                    tile.setMaxSize(100,100);
+                    System.out.println(tile);
+                    gridPane.add(tile, i, j);
+                } else {
+                    Label label = new Label("");
+                    label.setAlignment(Pos.CENTER);
+                    label.setPrefSize(100,100);
+                    label.setMaxSize(100,100);
+                    label.getStylesheets().add(getClass().getResource("game.css").toExternalForm());
+                    label.getStyleClass().add("game-tile-0");
+                    gridPane.add(label, i, j);
+                }
+            }
+        }
     }
 }

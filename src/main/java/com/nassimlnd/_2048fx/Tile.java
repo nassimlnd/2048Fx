@@ -62,29 +62,37 @@ public class Tile extends Label {
         return this.getValue() == anotherTile.getValue();
     }
 
-    public boolean isMovable(Direction direction, GameManager gameManager) {
+    @Override
+    public String toString() {
+        return "Tile{" +
+                "value=" + value +
+                ", location=" + location +
+                '}';
+    }
+
+    public boolean isMovable(Direction direction, GameManager gameManager, Location location) {
         if (direction == Direction.UP) {
-            if (this.location.getY() == 0) {
+            if (location.getY() == 0) {
                 return false;
-            } else if (gameManager.cellAvailable(new Location(this.location.getX(), (this.location.getY() - 1)))) {
+            } else if (gameManager.cellAvailable(new Location(location.getX(), (location.getY() - 1)))) {
                 return true;
             }
         } else if (direction == Direction.DOWN) {
-            if (this.location.getY() == 3) {
+            if (location.getY() == 3) {
                 return false;
-            } else if (gameManager.cellAvailable(new Location(this.location.getX(), (this.location.getY() + 1)))) {
+            } else if (gameManager.cellAvailable(new Location(location.getX(), (location.getY() + 1)))) {
                 return true;
             }
         } else if (direction == Direction.LEFT) {
-            if (this.location.getX() == 0) {
+            if (location.getX() == 0) {
                 return false;
-            } else if (gameManager.cellAvailable(new Location((this.location.getX() - 1), this.location.getY()))) {
+            } else if (gameManager.cellAvailable(new Location((location.getX() - 1), location.getY()))) {
                 return true;
             }
         } else if (direction == Direction.RIGHT) {
-            if (this.location.getX() == 3) {
+            if (location.getX() == 3) {
                 return false;
-            } else if (gameManager.cellAvailable(new Location((this.location.getX() + 1), this.location.getY()))) {
+            } else if (gameManager.cellAvailable(new Location((location.getX() + 1), location.getY()))) {
                 return true;
             }
         }
