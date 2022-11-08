@@ -61,4 +61,33 @@ public class Tile extends Label {
     public boolean isMergeable(Tile anotherTile) {
         return this.getValue() == anotherTile.getValue();
     }
+
+    public boolean isMovable(Direction direction, GameManager gameManager) {
+        if (direction == Direction.UP) {
+            if (this.location.getY() == 0) {
+                return false;
+            } else if (gameManager.cellAvailable(new Location(this.location.getX(), (this.location.getY() - 1)))) {
+                return true;
+            }
+        } else if (direction == Direction.DOWN) {
+            if (this.location.getY() == 3) {
+                return false;
+            } else if (gameManager.cellAvailable(new Location(this.location.getX(), (this.location.getY() + 1)))) {
+                return true;
+            }
+        } else if (direction == Direction.LEFT) {
+            if (this.location.getX() == 0) {
+                return false;
+            } else if (gameManager.cellAvailable(new Location((this.location.getX() - 1), this.location.getY()))) {
+                return true;
+            }
+        } else if (direction == Direction.RIGHT) {
+            if (this.location.getX() == 3) {
+                return false;
+            } else if (gameManager.cellAvailable(new Location((this.location.getX() + 1), this.location.getY()))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
