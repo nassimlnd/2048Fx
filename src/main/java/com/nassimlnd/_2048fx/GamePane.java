@@ -119,7 +119,6 @@ public class GamePane {
                     tile.setAlignment(Pos.CENTER);
                     tile.setPrefSize(100,100);
                     tile.setMaxSize(100,100);
-                    System.out.println(tile);
                     gridPane.add(tile, i, j);
                 } else {
                     Label label = new Label("");

@@ -4,6 +4,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 
+import java.io.BufferedReader;
+import java.security.Key;
 import java.util.*;
 
 public class GameManager {
@@ -12,6 +14,8 @@ public class GameManager {
     private Grid gridPane;
     private final static int startingTiles = 2;
     private int size;
+    private boolean win;
+    private boolean isOver;
 
     public GameManager(int size) {
         this.size = size;
@@ -50,7 +54,7 @@ public class GameManager {
     }
 
     public boolean cellAvailable(Location location) {
-        for(Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
+        for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
             if (location.equals(entry.getKey())) {
                 if (entry.getValue() == null) {
                     return true;
@@ -105,10 +109,10 @@ public class GameManager {
 
     public void move(KeyCode keyCode) {
         tilesMove(keyCode);
-        addRandomTile();
     }
 
     public void tilesMove(KeyCode keyCode) {
+        Boolean moved = false;
         switch (keyCode) {
             case UP:
                 for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
@@ -117,26 +121,29 @@ public class GameManager {
                     if (entry.getValue() != null) {
                         tile.setLocation(location);
                         if (entry.getValue().isMovable(Direction.UP, this, entry.getKey())) {
+                            moved = true;
                             Tile testTile = this.grid.get(entry.getKey());
                             while (testTile.isMovable(Direction.UP, this, testTile.getLocation())) {
-                                System.out.println("ok");
-                                Location newLocation = new Location(testTile.getLocation().getX(), testTile.getLocation().getY()-1);
+                                Location newLocation = new Location(testTile.getLocation().getX(), testTile.getLocation().getY() - 1);
                                 Location key = getKey(newLocation);
                                 this.grid.replace(tile.getLocation(), null);
                                 this.grid.replace(key, tile);
-                                System.out.println("Key:" + key);
                                 tile.setLocation(key);
-                                System.out.println(grid);
                             }
+                        } else if (entry.getValue() != null && entry.getValue().isMovable(Direction.UP, this, entry.getKey())) {
+                            mergeTiles(entry.getValue(), Direction.UP);
                         }
                     }
                 }
                 for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
                     if (entry.getValue() != null) {
                         if (entry.getValue().isMovable(Direction.UP, this, entry.getValue().getLocation())) {
-                            move(KeyCode.UP);
-                        }
+                            tilesMove(KeyCode.UP);
+                        } else mergeTiles(entry.getValue(), Direction.UP);
                     }
+                }
+                if (moved) {
+                    addRandomTile();
                 }
                 break;
             case DOWN:
@@ -146,26 +153,29 @@ public class GameManager {
                     if (entry.getValue() != null) {
                         tile.setLocation(location);
                         if (entry.getValue().isMovable(Direction.DOWN, this, entry.getKey())) {
+                            moved = true;
                             Tile testTile = this.grid.get(entry.getKey());
                             while (testTile.isMovable(Direction.DOWN, this, testTile.getLocation())) {
-                                System.out.println("ok");
-                                Location newLocation = new Location(testTile.getLocation().getX(), testTile.getLocation().getY()+1);
+                                Location newLocation = new Location(testTile.getLocation().getX(), testTile.getLocation().getY() + 1);
                                 Location key = getKey(newLocation);
                                 this.grid.replace(tile.getLocation(), null);
                                 this.grid.replace(key, tile);
-                                System.out.println("Key:" + key);
                                 tile.setLocation(key);
-                                System.out.println(grid);
                             }
+                        } else if (entry.getValue() != null && entry.getValue().isMovable(Direction.UP, this, entry.getKey())) {
+                            mergeTiles(entry.getValue(), Direction.DOWN);
                         }
                     }
                 }
                 for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
                     if (entry.getValue() != null) {
                         if (entry.getValue().isMovable(Direction.DOWN, this, entry.getValue().getLocation())) {
-                            move(KeyCode.DOWN);
-                        }
+                            tilesMove(KeyCode.DOWN);
+                        } else mergeTiles(entry.getValue(), Direction.DOWN);
                     }
+                }
+                if (moved) {
+                    addRandomTile();
                 }
                 break;
             case LEFT:
@@ -175,26 +185,29 @@ public class GameManager {
                     if (entry.getValue() != null) {
                         tile.setLocation(location);
                         if (entry.getValue().isMovable(Direction.LEFT, this, entry.getKey())) {
+                            moved = true;
                             Tile testTile = this.grid.get(entry.getKey());
                             while (testTile.isMovable(Direction.LEFT, this, testTile.getLocation())) {
-                                System.out.println("ok");
-                                Location newLocation = new Location(testTile.getLocation().getX()-1, testTile.getLocation().getY());
+                                Location newLocation = new Location(testTile.getLocation().getX() - 1, testTile.getLocation().getY());
                                 Location key = getKey(newLocation);
                                 this.grid.replace(tile.getLocation(), null);
                                 this.grid.replace(key, tile);
-                                System.out.println("Key:" + key);
                                 tile.setLocation(key);
-                                System.out.println(grid);
                             }
+                        } else if (entry.getValue() != null && entry.getValue().isMovable(Direction.UP, this, entry.getKey())) {
+                            mergeTiles(entry.getValue(), Direction.LEFT);
                         }
                     }
                 }
                 for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
                     if (entry.getValue() != null) {
                         if (entry.getValue().isMovable(Direction.LEFT, this, entry.getValue().getLocation())) {
-                            move(KeyCode.LEFT);
-                        }
+                            tilesMove(KeyCode.LEFT);
+                        } else mergeTiles(entry.getValue(), Direction.LEFT);
                     }
+                }
+                if (moved) {
+                    addRandomTile();
                 }
                 break;
             case RIGHT:
@@ -204,29 +217,109 @@ public class GameManager {
                     if (entry.getValue() != null) {
                         tile.setLocation(location);
                         if (entry.getValue().isMovable(Direction.RIGHT, this, entry.getKey())) {
+                            moved = true;
                             Tile testTile = this.grid.get(entry.getKey());
                             while (testTile.isMovable(Direction.RIGHT, this, testTile.getLocation())) {
-                                System.out.println("ok");
-                                Location newLocation = new Location(testTile.getLocation().getX()+1, testTile.getLocation().getY());
+                                Location newLocation = new Location(testTile.getLocation().getX() + 1, testTile.getLocation().getY());
                                 Location key = getKey(newLocation);
                                 this.grid.replace(tile.getLocation(), null);
                                 this.grid.replace(key, tile);
-                                System.out.println("Key:" + key);
                                 tile.setLocation(key);
-                                System.out.println(grid);
                             }
-                        }
+                        } /*else if (entry.getValue() != null && entry.getValue().isMovable(Direction.UP, this, entry.getKey())) {
+                            mergeTiles(entry.getValue(), Direction.RIGHT);
+                        }*/
                     }
                 }
                 for (Map.Entry<Location, Tile> entry : this.grid.entrySet()) {
                     if (entry.getValue() != null) {
                         if (entry.getValue().isMovable(Direction.RIGHT, this, entry.getValue().getLocation())) {
-                            move(KeyCode.RIGHT);
+                            tilesMove(KeyCode.RIGHT);
+                        } else mergeTiles(entry.getValue(), Direction.RIGHT);
+                    }
+                }
+                if (moved) {
+                    addRandomTile();
+                }
+                break;
+        }
+    }
+
+    private void mergeTiles(Tile value, Direction direction) {
+        switch (direction) {
+            case UP:
+                if (!value.isMovable(Direction.UP, this, value.getLocation())) {
+                    Location newLocation = new Location(value.getLocation().getX(), value.getLocation().getY() - 1);
+                    Tile anotherTile = getTile(newLocation);
+
+                    if (anotherTile != null) {
+                        if (value.isMergeable(anotherTile)) {
+                            value.merge(anotherTile);
+                            Location key = getKey(newLocation);
+                            Location oldKey = getKey(value.getLocation());
+                            this.grid.replace(oldKey, null);
+                            this.grid.replace(key, value);
+                            value.setLocation(key);
+                        }
+                    }
+                }
+                break;
+
+            case DOWN:
+                if (!value.isMovable(Direction.DOWN, this, value.getLocation())) {
+                    Location newLocation = new Location(value.getLocation().getX(), value.getLocation().getY() + 1);
+                    Tile anotherTile = getTile(newLocation);
+
+                    if (anotherTile != null) {
+                        if (value.isMergeable(anotherTile)) {
+                            value.merge(anotherTile);
+                            Location key = getKey(newLocation);
+                            Location oldKey = getKey(value.getLocation());
+                            this.grid.replace(oldKey, null);
+                            this.grid.replace(key, value);
+                            value.setLocation(key);
+                        }
+                    }
+                }
+                break;
+
+            case LEFT:
+                if (!value.isMovable(Direction.LEFT, this, value.getLocation())) {
+                    Location newLocation = new Location(value.getLocation().getX() - 1, value.getLocation().getY());
+                    Tile anotherTile = getTile(newLocation);
+
+                    if (anotherTile != null) {
+                        if (value.isMergeable(anotherTile)) {
+                            value.merge(anotherTile);
+                            Location key = getKey(newLocation);
+                            Location oldKey = getKey(value.getLocation());
+                            this.grid.replace(oldKey, null);
+                            this.grid.replace(key, value);
+                            value.setLocation(key);
+                        }
+                    }
+                }
+                break;
+
+            case RIGHT:
+                if (!value.isMovable(Direction.RIGHT, this, value.getLocation())) {
+                    Location newLocation = new Location(value.getLocation().getX() + 1, value.getLocation().getY());
+                    Tile anotherTile = getTile(newLocation);
+
+                    if (anotherTile != null) {
+                        if (value.isMergeable(anotherTile)) {
+                            value.merge(anotherTile);
+                            Location key = getKey(newLocation);
+                            Location oldKey = getKey(value.getLocation());
+                            this.grid.replace(oldKey, null);
+                            this.grid.replace(key, value);
+                            value.setLocation(key);
                         }
                     }
                 }
                 break;
         }
+
     }
 
     public Grid getGridPane() {
@@ -246,7 +339,7 @@ public class GameManager {
         gridPane.getStylesheets().add(String.valueOf(GamePane.class.getResource("game.css")));
         HashMap<Location, Tile> grid = getGrid();
 
-        gridPane.setMinSize(500,500);
+        gridPane.setMinSize(500, 500);
         gridPane.setHgap(5);
         gridPane.setVgap(5);
 
@@ -255,15 +348,15 @@ public class GameManager {
                 Tile tile = getTile(new Location(i, j));
                 if (!(tile == null)) {
                     tile.setAlignment(Pos.CENTER);
-                    tile.setPrefSize(100,100);
-                    tile.setMaxSize(100,100);
+                    tile.setPrefSize(100, 100);
+                    tile.setMaxSize(100, 100);
                     System.out.println(tile);
                     gridPane.add(tile, i, j);
                 } else {
                     Label label = new Label("");
                     label.setAlignment(Pos.CENTER);
-                    label.setPrefSize(100,100);
-                    label.setMaxSize(100,100);
+                    label.setPrefSize(100, 100);
+                    label.setMaxSize(100, 100);
                     label.getStylesheets().add(getClass().getResource("game.css").toExternalForm());
                     label.getStyleClass().add("game-tile-0");
                     gridPane.add(label, i, j);
